@@ -94,7 +94,7 @@ if len(model_generator) > 0:
     )
 
     promote_new_model = False
-    if new_model_acc > production_model_acc:
+    if new_model_acc > production_model_acc or cur_max is None:
         promote_new_model = True
         print("New trained model performs better, will be registered")
 
