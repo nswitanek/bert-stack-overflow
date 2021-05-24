@@ -12,10 +12,10 @@ Taxonomies for products and languages: https://review.docs.microsoft.com/new-hop
 
 This repository contains content of a four part workshop of using Tensorflow 2.0 on Azure Machine Learning service. The different components of the workshop are as follows:
 
-- Part 1: [Preparing Data and Model Training](https://github.com/microsoft/bert-stack-overflow/blob/master/1-Training/AzureServiceClassifier_Training.ipynb)
-- Part 2: [Inferencing and Deploying a Model](https://github.com/microsoft/bert-stack-overflow/blob/master/2-Inferencing/AzureServiceClassifier_Inferencing.ipynb)
-- Part 3: [Setting Up a Pipeline Using MLOps](https://github.com/microsoft/bert-stack-overflow/tree/master/3-ML-Ops)
-- Part 4: [Explaining Your Model Predictions](https://github.com/microsoft/bert-stack-overflow/blob/master/4-Interpretibility/IBMEmployeeAttritionClassifier_Interpretability.ipynb)
+- Part 1: [Preparing Data and Model Training](https://github.com/xlegend1024/bert-stack-overflow/blob/master/1-Training/AzureServiceClassifier_Training.ipynb)
+- Part 2: [Inferencing and Deploying a Model](https://github.com/xlegend1024/bert-stack-overflow/blob/master/2-Inferencing/AzureServiceClassifier_Inferencing.ipynb)
+- Part 3: [Setting Up a Pipeline Using MLOps](https://github.com/xlegend1024/bert-stack-overflow/blob/master/3-ML-Ops/AzureServiceClassifier_AML_Pipeline.ipynb)
+- Part 4: [Explaining Your Model Predictions](https://github.com/xlegend1024/bert-stack-overflow/blob/master/4-Interpretibility/EmployeeAttritionClassifier_Interpretability_Local.ipynb)
 
 The workshop demonstrates end-to-end Machine Learning workflow on the example of training a [BERT](https://arxiv.org/pdf/1810.04805.pdf) model to automatically tag questions on Stack Overflow.
 
