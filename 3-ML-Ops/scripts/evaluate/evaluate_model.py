@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Copyright (C) Microsoft Corporation. All rights reserved.​
  ​
@@ -61,7 +62,7 @@ new_model_run = None
 for run in all_runs:
     acc = run.get_metrics().get("val_accuracy")
     print(f'run is {run}, acc is {acc}')
-    if run.get_status() == 'Finished' and acc is not None:
+    if run.get_status() == 'Completed' and acc is not None:
         new_model_run = run
         print('found a valid new model with acc {}'.format(acc))
         break
@@ -105,7 +106,7 @@ else:
 
 # Writing the run id to /aml_config/run_id.json
 if promote_new_model:
-    model_path = './outputs/exports'
+    model_path = './outputs/model'
     new_model_run.register_model(
         model_name=model_name,
         model_path=model_path,
