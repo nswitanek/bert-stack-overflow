@@ -10,6 +10,7 @@ def get_workspace(
         tenant_id: str,
         app_id: str,
         app_secret: str):
+        
     service_principal = ServicePrincipalAuthentication(
         tenant_id=tenant_id,
         service_principal_id=app_id,

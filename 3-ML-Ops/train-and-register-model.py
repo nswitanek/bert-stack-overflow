@@ -1,9 +1,9 @@
 from azureml.pipeline.core.graph import PipelineParameter
-from azureml.pipeline.steps import EstimatorStep, PythonScriptStep
+from azureml.pipeline.steps import PythonScriptStep
 from azureml.pipeline.core import Pipeline
 from azureml.core.runconfig import RunConfiguration, CondaDependencies
 from azureml.core import Dataset, Datastore
-from azureml.train.dnn import TensorFlow
+# from azureml.train.dnn import TensorFlow
 import os
 import sys
 from dotenv import load_dotenv
@@ -15,8 +15,8 @@ from attach_aks import get_aks
 
 def main():
     load_dotenv()
-    workspace_name = os.environ.get("BASE_NAME")+"-AML-WS"
-    resource_group = "AML-RG-"+os.environ.get("BASE_NAME")
+    workspace_name = os.environ.get("WS_NAME")
+    resource_group = os.environ.get("RG_NAME")
     subscription_id = os.environ.get("SUBSCRIPTION_ID")
     tenant_id = os.environ.get("TENANT_ID")
     app_id = os.environ.get("SP_APP_ID")
@@ -40,6 +40,8 @@ def main():
         tenant_id,
         app_id,
         app_secret)
+
+    print('Now accessing:')
     print(aml_workspace)
 
     # Get Azure machine learning cluster
@@ -53,19 +55,24 @@ def main():
     run_config = RunConfiguration(conda_dependencies=CondaDependencies.create(
         conda_packages=['numpy', 'pandas',
                         'scikit-learn', 'keras'],
-        pip_packages=['azure', 'azureml-sdk',
-                      'azure-storage',
-                      'azure-storage-blob',
-                      'transformers>=2.1.1',
-                      'tensorflow>=2.0.0',
-                      'tensorflow-gpu>=2.0.0'])
+        pip_packages=['azureml-core==1.25.0',
+                      'azureml-defaults==1.25.0',
+                      'azureml-telemetry==1.25.0',
+                      'azureml-train-restclients-hyperdrive==1.25.0',
+                      'azureml-train-core==1.25.0',
+                      'azureml-dataprep',
+                      'tensorflow-gpu==2.0.0',
+                      'transformers==2.0.0',
+                      'absl-py',
+                      'azureml-dataprep',
+                      'h5py<3.0.0'])
     )
-    run_config.environment.docker.enabled = True
-    
-    datastore_name = 'tfworld'
+    # run_config.environment.docker.enabled = True
+
+    datastore_name = 'mtcseattle'
     container_name = 'azure-service-classifier'
-    account_name = 'johndatasets'
-    sas_token = '?sv=2019-02-02&ss=bfqt&srt=sco&sp=rl&se=2021-06-02T03:40:25Z&st=2020-03-09T19:40:25Z&spr=https&sig=bUwK7AJUj2c%2Fr90Qf8O1sojF0w6wRFgL2c9zMVCWNPA%3D'
+    account_name = 'mtcseattle'
+    sas_token = '?sv=2020-04-08&st=2021-05-26T04%3A39%3A46Z&se=2022-05-27T04%3A39%3A00Z&sr=c&sp=rl&sig=CTFMEu24bo2X06G%2B%2F2aKiiPZBzvlWHELe15rNFqULUk%3D'
 
     try:
         existing_datastore = Datastore.get(aml_workspace, datastore_name)
@@ -75,11 +82,12 @@ def main():
                                            datastore_name=datastore_name,
                                            container_name=container_name,
                                            account_name=account_name,
-                                           sas_token=sas_token
-                                           )
+                                           sas_token=sas_token,
+                                           overwrite=True)
 
     azure_dataset = Dataset.File.from_files(
         path=(existing_datastore, 'data'))
+
     azure_dataset = azure_dataset.register(
         workspace=aml_workspace,
         name='Azure Services Dataset',
@@ -87,7 +95,7 @@ def main():
         create_new_version=True)
 
     azure_dataset.to_path()
-    input_data = azure_dataset.as_named_input('input_data1').as_mount(
+    input_data = azure_dataset.as_named_input('azureservicedata').as_mount(
         '/tmp/data')
 
     model_name = PipelineParameter(
@@ -105,32 +113,21 @@ def main():
     steps_per_epoch = PipelineParameter(
         name="steps_per_epoch", default_value=100)
 
-    # initialize the TensorFlow estimator
-    estimator = TensorFlow(
+    # initialize the PythonScriptStep
+    train_step = PythonScriptStep(
+        name='Train Model',
+        script_name=train_script_path,
+        arguments=['--data_dir', input_data,
+                   '--max_seq_length', max_seq_length,
+                   '--batch_size', batch_size,
+                   '--learning_rate', learning_rate,
+                   '--steps_per_epoch', steps_per_epoch,
+                   '--num_epochs', num_epochs,
+                   '--export_dir',export_dir],
+        compute_target=aml_compute,
         source_directory=sources_directory_train,
-        entry_script=train_script_path,
-        compute_target=aml_compute,
-        framework_version='2.0',
-        use_gpu=True,
-        pip_packages=[
-            'transformers==2.0.0',
-            'azureml-dataprep[fuse,pandas]==1.3.0'])
-
-    train_step = EstimatorStep(
-        name="Train Model",
-        estimator=estimator,
-        estimator_entry_script_arguments=[
-            "--data_dir", input_data,
-            "--max_seq_length", max_seq_length,
-            "--learning_rate", learning_rate,
-            "--num_epochs", num_epochs,
-            "--export_dir", export_dir,
-            "--batch_size", batch_size,
-            "--steps_per_epoch", steps_per_epoch],
-        compute_target=aml_compute,
-        inputs=[input_data],
-        allow_reuse=False,
-    )
+        runconfig=run_config,
+        allow_reuse=True)
     print("Step Train created")
 
     evaluate_step = PythonScriptStep(
@@ -159,23 +156,23 @@ def main():
     train_pipeline.validate()
     published_pipeline = train_pipeline.publish(
         name=pipeline_name,
-        description="Model training/retraining pipeline",
+        description="Model training/retraining pipeline.",
         version=build_id
     )
     print(f'Published pipeline: {published_pipeline.name}')
     print(f'for build {published_pipeline.version}')
 
-    response = published_pipeline.submit(  # noqa: F841
-               workspace=aml_workspace,
-               experiment_name=experiment_name)
+    # response = published_pipeline.submit(  # noqa: F841
+    #            workspace=aml_workspace,
+    #            experiment_name=experiment_name)
 
-    # Get AKS cluster for deployment
-    aks_compute = get_aks(
-        aml_workspace,
-        aks_name
-    )
-    if aks_compute is not None:
-        print(aks_compute)
+    # # Get AKS cluster for deployment
+    # aks_compute = get_aks(
+    #     aml_workspace,
+    #     aks_name
+    # )
+    # if aks_compute is not None:
+    #     print(aks_compute)
 
 
 if __name__ == '__main__':
