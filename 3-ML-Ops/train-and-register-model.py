@@ -162,9 +162,9 @@ def main():
     print(f'Published pipeline: {published_pipeline.name}')
     print(f'for build {published_pipeline.version}')
 
-    response = published_pipeline.submit(  # noqa: F841
-               workspace=aml_workspace,
-               experiment_name=experiment_name)
+    # response = published_pipeline.submit(  # noqa: F841
+    #            workspace=aml_workspace,
+    #            experiment_name=experiment_name)
 
     # # Get AKS cluster for deployment
     # aks_compute = get_aks(
