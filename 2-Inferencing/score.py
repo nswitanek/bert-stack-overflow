@@ -39,10 +39,8 @@ class TFBertForMultiClassification(TFBertPreTrainedModel):
 
 
 max_seq_length = 128
-labels = [
-    'azure-web-app-service', 'azure-storage',
-    'azure-devops', 'azure-virtual-machine', 'azure-functions'
-]
+labels = ['azure-web-app-service', 'azure-storage',
+    'azure-devops', 'azure-virtual-machine', 'azure-functions']
 
 
 def init():
@@ -52,7 +50,7 @@ def init():
     model_dir = os.path.join(os.getenv('AZUREML_MODEL_DIR'), 'model')
     model = TFBertForMultiClassification \
         .from_pretrained(model_dir, num_labels=len(labels))
-
+    print("hello from the reloaded script")
 
 def run(raw_data):
 
@@ -81,14 +79,21 @@ def run(raw_data):
             [attention_mask],
             dtype=tf.int32),
         'token_type_ids': tf.convert_to_tensor(
-            [token_type_ids],
+            [token_type_ids], 
             dtype=tf.int32)
     })
 
     result = {
         'prediction': str(labels[predictions[0].argmax().item()]),
-        'probability': str(predictions[0].max())
+        'probability': str(predictions[0].max()),
+        'message': 'NLP on Azure'
     }
 
     print(result)
     return result
+
+
+init()
+run(json.dumps({
+    'text': 'My VM is not working'
+}))
