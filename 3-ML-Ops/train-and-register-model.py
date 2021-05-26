@@ -3,7 +3,7 @@ from azureml.pipeline.steps import PythonScriptStep
 from azureml.pipeline.core import Pipeline
 from azureml.core.runconfig import RunConfiguration, CondaDependencies
 from azureml.core import Dataset, Datastore
-from azureml.train.dnn import TensorFlow
+# from azureml.train.dnn import TensorFlow
 import os
 import sys
 from dotenv import load_dotenv
