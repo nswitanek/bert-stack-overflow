@@ -105,13 +105,13 @@ def main():
     learning_rate = PipelineParameter(
         name="learning_rate", default_value=3e-5)
     num_epochs = PipelineParameter(
-        name="num_epochs", default_value=3)
+        name="num_epochs", default_value=1)
     export_dir = PipelineParameter(
-        name="export_dir", default_value="./outputs/exports")
+        name="export_dir", default_value="./outputs/model")
     batch_size = PipelineParameter(
         name="batch_size", default_value=32)
     steps_per_epoch = PipelineParameter(
-        name="steps_per_epoch", default_value=100)
+        name="steps_per_epoch", default_value=5)
 
     # initialize the PythonScriptStep
     train_step = PythonScriptStep(
