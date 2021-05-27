@@ -85,8 +85,7 @@ def run(raw_data):
 
     result = {
         'prediction': str(labels[predictions[0].argmax().item()]),
-        'probability': str(predictions[0].max()),
-        'message': 'NLP on Azure'
+        'probability': str(predictions[0].max())
     }
 
     print(result)
