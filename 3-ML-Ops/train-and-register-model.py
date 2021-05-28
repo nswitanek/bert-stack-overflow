@@ -111,7 +111,7 @@ def main():
     batch_size = PipelineParameter(
         name="batch_size", default_value=32)
     steps_per_epoch = PipelineParameter(
-        name="steps_per_epoch", default_value=5)
+        name="steps_per_epoch", default_value=1)
 
     # initialize the PythonScriptStep
     train_step = PythonScriptStep(
@@ -162,9 +162,9 @@ def main():
     print(f'Published pipeline: {published_pipeline.name}')
     print(f'for build {published_pipeline.version}')
 
-    # response = published_pipeline.submit(  # noqa: F841
-    #            workspace=aml_workspace,
-    #            experiment_name=experiment_name)
+    response = published_pipeline.submit(  # noqa: F841
+               workspace=aml_workspace,
+               experiment_name=experiment_name)
 
     # # Get AKS cluster for deployment
     # aks_compute = get_aks(
