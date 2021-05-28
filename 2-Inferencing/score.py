@@ -50,7 +50,6 @@ def init():
     model_dir = os.path.join(os.getenv('AZUREML_MODEL_DIR'), 'model')
     model = TFBertForMultiClassification \
         .from_pretrained(model_dir, num_labels=len(labels))
-    print("hello from the reloaded script")
 
 def run(raw_data):
 

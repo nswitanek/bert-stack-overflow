@@ -80,10 +80,11 @@ if len(model_generator) > 0:
     production_model = None
 
     for model in model_generator:
-        cur_acc = model.run.get_metrics().get("val_accuracy")[-1]
-        if cur_max is None or cur_acc > cur_max:
-            cur_max = cur_acc
-            production_model = model
+        if model.run is not None:
+            cur_acc = model.run.get_metrics().get("val_accuracy")[-1]
+            if cur_max is None or cur_acc > cur_max:
+                cur_max = cur_acc
+                production_model = model
 
     production_model_acc = cur_max
     new_model_acc = new_model_run.get_metrics().get(

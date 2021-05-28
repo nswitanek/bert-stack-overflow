@@ -107,7 +107,7 @@ def main():
     num_epochs = PipelineParameter(
         name="num_epochs", default_value=1)
     export_dir = PipelineParameter(
-        name="export_dir", default_value="./outputs/model")
+        name="export_dir", default_value="./outputs/exports")
     batch_size = PipelineParameter(
         name="batch_size", default_value=32)
     steps_per_epoch = PipelineParameter(

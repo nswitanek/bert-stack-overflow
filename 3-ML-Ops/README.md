@@ -82,23 +82,32 @@ Great, you now have the build pipeline setup, you can either manually trigger it
 
 The final step is to deploy your model with a release pipeline.
 
-Go to "Pipelines" -> "Releases." In the top right of the second navigation bar from the left, select "New" -> "New release pipeline." Select "Empty job" under "Select a template" on the blade that pops up. 
+Go to "Pipelines" -> "Releases." 
 
-![Selecting empty job](./images/empty-job.png)
+![release](../images/ado_new_release_01.png)
+
+In the top right of the second navigation bar from the left, select "New" -> "New release pipeline." Select "Empty job" under "Select a template" on the blade that pops up. 
+
+![release](../images/ado_new_release_02.png)
 
 Call this stage "Prod," by editing the value of "Stage name" in the blade on the right hand side. 
 
-![Rename prod](./images/prod.png)
+![release](../images/ado_new_release_03.png)
 
 ### 3.1. Add artifacts to your pipeline
 
 In order for this Release pipeline to work, it needs access to the trained model we produced in the build pipeline. The release pipeline accesses the trained model as part of something called an Artifact. To give this release pipeline access to the relevant artifacts, click on "Add an artifact" in the "Artifacts" box.
 
-![Add artifact](./images/add-artifact.png)
+![release](../images/ado_new_release_04.png)
 
-Next, select "AzureML Model Artifact" (you may need to click "Show more"). Select the correct service endpoint (you should have created this in the previous step) and model name. Leave the other settings as they are, and click "Add."
+Next, select "AzureML Model Artifact" (you may need to click "Show more"). 
+
+![release](../images/ado_new_release_05.png)
+
+Select the correct service endpoint (you should have created this in the previous step) and model name. Leave the other settings as they are, and click "Add."
 
 Let's also give the release pipeline access to the build artifact, which contains some of the files that the release pipeline needs in order to run. Click on "Add" in the "Artifacts" box, select "Build," and ensure that the source alias is set to "_ci-build". This naming is necessary for the next step to work properly.
+
 
 ### 3.2. Add QA stage
 
@@ -107,6 +116,8 @@ Great, so your release pipeline has access to your artifacts, but it doesn't act
 Click on the hyperlinked text that says "1 job, 0 task" in the name of the stage.
 
 Click on the plus icon on the right hand side of the cell which says "Agent job." On the menu which appears, search for "Azure ML Model Deploy," and click "Add."
+
+![release](../images/ado_new_release_06.png)
 
  Click on the red text which says "Some settings need attention" and fill in the values shown in the table below:
 
@@ -120,6 +131,8 @@ Click on the plus icon on the right hand side of the cell which says "Agent job.
 | Deployment Configuration file     | `$(System.DefaultWorkingDirectory)/_azure-service-classifier/3-ML-Ops/scripts/scoring/deployment_config_aci.yml` |
 | Overwrite existing deployment     | X                                                                                                    |
 
+![release](../images/ado_new_release_07.png)
+
 Then click "Save."
 
 ### 3.3. Add Prod Stage
@@ -128,9 +141,10 @@ Under the box corresponding to the QA stage, click Prod.
 
 Click on the plus icon on the right hand side of the cell which says "Agent job." On the menu which appears, search for "Azure ML Model Deploy," and click "Add."
 
+
+
  Click on the red text which says "Some settings need attention" and fill in the values shown in the table below:
 
-![create release example](./images/deploy-task.png)
 
  Click on the red text which says "Some settings need attention" and fill in the values shown in the table below:
 
