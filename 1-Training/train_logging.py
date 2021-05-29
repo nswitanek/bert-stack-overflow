@@ -21,9 +21,10 @@ flags.DEFINE_integer('max_seq_length', 128, 'Maximum sequence length of input se
 flags.DEFINE_integer('batch_size', 32, 'Batch size for training.', lower_bound=0)
 flags.DEFINE_float('learning_rate', 3e-5, 'Learning rate for training.')
 flags.DEFINE_integer('steps_per_epoch', 150, 'Number of steps per epoch.')
-flags.DEFINE_integer('num_epochs', 3, 'Number of epochs to train for.', lower_bound=0)
+flags.DEFINE_integer('num_epochs', 1, 'Number of epochs to train for.', lower_bound=0)
 flags.DEFINE_string('data_dir', None, 'Root path of directory where data is stored.')
 flags.DEFINE_string('export_dir', './outputs', 'The directory to export the model to')
+
 
 class AmlLogger(tf.keras.callbacks.Callback):
     ''' A callback class for logging metrics using Azure Machine Learning Python SDK '''
@@ -33,6 +34,7 @@ class AmlLogger(tf.keras.callbacks.Callback):
 
     def on_batch_end(self, batch, logs={}):
         run.log('accuracy', float(logs.get('accuracy')))
+
 
 def encode_example(example, tokenizer, max_seq_length, labels_map):
     ''' Encodes an input text using the BERT tokenizer

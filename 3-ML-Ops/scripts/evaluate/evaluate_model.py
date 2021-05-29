@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Copyright (C) Microsoft Corporation. All rights reserved.​
  ​
@@ -55,58 +54,61 @@ build_id = args.build_id
 
 all_runs = exp.get_runs(include_children=True)
 
-new_model_run = None
-
-# get the last completed run with metrics
-new_model_run = None
-for run in all_runs:
-    acc = run.get_metrics().get("val_accuracy")
-    print(f'run is {run}, acc is {acc}')
-    if run.get_status() == 'Completed' and acc is not None:
-        new_model_run = run
-        print('found a valid new model with acc {}'.format(acc))
+# get the last completed run
+while True:
+    new_model_run = next(all_runs)
+    if (new_model_run.get_status() == 'Completed'):
         break
+    new_model_run_id = new_model_run.id
 
-if new_model_run is None:
-    raise Exception('new model must log a val_accuracy metric, please check'
-                    ' your train.py file')
-model_generator = Model.list(ws)
+# print(f'New Run found with Run ID of: {new_model_run_id}')
 
-# Check that there are models
-if len(model_generator) > 0:
+model_list = Model.list(ws)
 
-    # Get the model with best val accuracy, assume this is best
-    cur_max = None
-    production_model = None
+if len(model_list) != 0:  # there are some models
+    # # Get most recently registered model, we assume that
+    # is the model in production.
+    # Download this model and compare it with the recently
+    # trained model by running test with same data set.
+    # production_model = next(
+    #     filter(
+    #         lambda x: x.created_time == max(
+    #             model.created_time for model in model_list),
+    #         model_list,
+    #     )
+    # )
+    # production_model_run_id = production_model.id
+    # run_list = exp.get_runs()
 
-    for model in model_generator:
-        cur_acc = model.run.get_metrics().get("val_accuracy")[-1]
-        if cur_max is None or cur_acc > cur_max:
-            cur_max = cur_acc
-            production_model = model
+    # # Get the run history for both production model and
+    # # newly trained model and compare mse
+    # production_model_run = production_model.run
+    # # new_model_run = Run(exp, run_id=new_model_run_id)
 
-    production_model_acc = cur_max
-    new_model_acc = new_model_run.get_metrics().get(
-        "val_accuracy")[-1]
-    print(
-        "Current Production model acc: {}, New trained model acc: {}".format(
-            production_model_acc, new_model_acc
-        )
-    )
+    # production_model_acc = production_model_run.get_metrics().get(
+    #     "val_accuracy")
+    # new_model_acc = new_model_run.get_metrics().get(
+    #     "val_accuracy")
+    # print(
+    #     "Current Production model acc: {}, New trained model acc: {}".format(
+    #         production_model_acc, new_model_acc
+    #     )
+    # )
 
-    promote_new_model = False
-    if new_model_acc > production_model_acc or production_model_acc is None:
-        promote_new_model = True
-        print("New trained model performs better, will be registered")
-
+    # promote_new_model = False
+    # if new_model_acc > production_model_acc:
+    #     promote_new_model = True
+    #     print("New trained model performs better, will be registered")
+    promote_new_model = True
 else:
     promote_new_model = True
     print("This is the first model to be trained, \
           thus nothing to evaluate for now")
 
+
 # Writing the run id to /aml_config/run_id.json
 if promote_new_model:
-    model_path = './outputs/model'
+    model_path = './outputs/exports'
     new_model_run.register_model(
         model_name=model_name,
         model_path=model_path,
