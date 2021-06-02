@@ -177,7 +177,7 @@ To kick off your first deployment, click "Create release."
 
 Open your machine learning workspace in the [Azure portal](portal.azure.com), and click on "Deployments" on the lefthand side. Open up your AKS cluster, and use the Scoring URI and Primary Key for this step.
 
-![deploy uri](./images/deploy-uri.png)
+![deploy uri](../images/ado_new_release_99.png)
 
 Let's see if we can submit a query to our deployed model! Open up a Python interpreter, either on your local machine or on an Azure Notebook, and run the following code, making sure to substitute the URL of your webservice and your API key as appropriate:
 
