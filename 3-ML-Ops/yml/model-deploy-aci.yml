@@ -1,0 +1,40 @@
+pr: none
+trigger:
+  branches:
+    include:
+    - master
+
+pool: 
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: devopsforai-aml-vg
+
+steps:
+
+- task: UsePythonVersion@0
+  displayName: 'Use Python 3.6'
+  inputs:
+    versionSpec: 3.6
+
+- bash: 'pip install --upgrade azureml-core'
+  workingDirectory: '$(Build.SourcesDirectory)/3-ML-Ops'
+  displayName: 'Bash Script'
+
+- bash: 'pip install python-dotenv'
+  workingDirectory: '$(Build.SourcesDirectory)/3-ML-Ops'
+  displayName: 'Bash Script'
+
+- bash: |
+   # Invoke the Python deploy model as webservice on ACI
+   python3 $(Build.SourcesDirectory)/3-ML-Ops/model-deploy-aci.py
+  failOnStderr: 'false'
+  env:
+    WS_NAME: '$(WS_NAME)'
+    RG_NAME: '$(RG_NAME)'
+    SUBSCRIPTION_ID: '$(SUBSCRIPTION_ID)'
+    TENANT_ID: '$(TENANT_ID)'
+    SP_APP_ID: '$(SP_APP_ID)'
+    SP_APP_SECRET: '$(SP_APP_SECRET)'    
+  displayName: 'Deploy model to ACI'
+  enabled: 'true'
